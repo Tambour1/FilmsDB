@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  filmdb-app:
+    container_name: filmdb-app
+    build: .
+    ports:
+      - "4444:80"
+    networks:
+      - filmdb-network
+
+networks:
+  filmdb-network:
+    driver: bridge
