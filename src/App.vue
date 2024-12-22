@@ -85,6 +85,19 @@ export default {
       this.details = false;
     },
   },
+
+  computed : {
+    minutesToHour() {      
+      let runtime = this.currentMovie.Runtime;
+      runtime = parseInt(runtime);
+      let hours = Math.floor(runtime / 60);
+      let minutes = runtime % 60;
+      if(hours < 1) {
+        return `${minutes}min`;
+      }
+      return `${hours}h${minutes}`;
+    },
+  },
 };
 </script>
 
@@ -109,6 +122,7 @@ export default {
     <div v-if="details && currentMovie.length !== 0 " class="details">
       <img :src="currentMovie.Poster" alt="Film Poster" />
       <h2>{{ currentMovie.Title }} ({{ currentMovie.Year }})</h2>
+      <p>{{ minutesToHour }}</p>
       <div>
         <span>Genre:</span> <span>{{ currentMovie.Genre }}</span>
       </div>
