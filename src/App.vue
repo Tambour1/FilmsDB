@@ -105,6 +105,7 @@ export default {
       currentMovie: this.currentMovie,
       details: this.details,
       currentSearch: this.currentSearch,
+      nbResultats: this.nbResultats,
       };
       localStorage.setItem('movieData', JSON.stringify(data));
     },
@@ -118,6 +119,7 @@ export default {
         this.currentMovie = parsedData.currentMovie || {};
         this.details = parsedData.details || false;
         this.currentSearch = parsedData.currentSearch || '';
+        this.nbResultats = parsedData.nbResultats || '';
       }
     },
   },
