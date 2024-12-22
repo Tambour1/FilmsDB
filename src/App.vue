@@ -5,6 +5,7 @@ export default {
       film: '',
       apiKey: '2b61feeb',
       currentResults: [],
+      currentSearch: '',
       error: '',
       isLoading: false,
       noResults: false,
@@ -45,6 +46,11 @@ export default {
         this.isLoading = false;
       }
     },
+
+    displayHistory(search) {
+      this.currentResults = search.results;
+      this.currentSearch = search.id;
+    },
   },
 };
 </script>
@@ -66,5 +72,26 @@ export default {
         <p>{{ result.Title }} ({{ result.Year }}) - {{ result.Type }}</p>
       </li>
     </ul>
+
+    <div class="historique">
+    <h2>Historique de recherche</h2>   
+    <ul>
+      <li 
+        v-for="search in searches" 
+        :key="search.id"
+        @click="displayHistory(search)"
+        :class="{ selected: currentSearch === search.id}">
+        {{ search.recherche }}
+      </li>
+    </ul>
+  </div>
   </body>  
 </template>
+
+<style>
+
+.selected {
+  color: blue;
+  font-weight: bold;
+}
+</style>
