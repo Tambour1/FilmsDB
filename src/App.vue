@@ -45,7 +45,8 @@ export default {
           });
           this.nbResultats = `${data.totalResults} résultat${
             data.totalResults > 1 ? 's' : ''
-          }`;          
+          }`;  
+          this.saveToLocalStorage();        
         } else {
           this.noResults = true;
           this.nbResultats = '';
@@ -67,6 +68,7 @@ export default {
         const data = await response.json();
         this.currentMovie = data;
         this.details = true;
+        this.saveToLocalStorage();
       } catch (err) {
         this.error = 'Une erreur est survenue lors de la recherche.';
       }
@@ -77,10 +79,12 @@ export default {
       this.currentResults = search.results;
       this.currentSearch = search.id;
       this.nbResultats = `${search.totalResults} résultat${search.totalResults > 1 ? 's' : ''}`;
+      this.saveToLocalStorage();
     },
 
     clearHistory() {
       this.searches = [];
+      this.saveToLocalStorage();
     },
 
     clearAll() {
@@ -91,6 +95,29 @@ export default {
       this.currentMovie = {};
       this.details = false;
       this.nbResultats = '';
+    },
+
+    saveToLocalStorage() {
+      const data = {
+      searches: this.searches,
+      currentResults: this.currentResults,
+      currentMovie: this.currentMovie,
+      details: this.details,
+      currentSearch: this.currentSearch,
+      };
+      localStorage.setItem('movieData', JSON.stringify(data));
+    },
+
+    loadFromLocalStorage() {
+      const savedData = localStorage.getItem('movieData');
+      if (savedData) {
+        const parsedData = JSON.parse(savedData);
+        this.searches = parsedData.searches || [];
+        this.currentResults = parsedData.currentResults || [];
+        this.currentMovie = parsedData.currentMovie || {};
+        this.details = parsedData.details || false;
+        this.currentSearch = parsedData.currentSearch || '';
+      }
     },
   },
 
@@ -105,6 +132,10 @@ export default {
       }
       return `${hours}h${minutes}`;
     },
+  },
+
+  mounted() {
+    this.loadFromLocalStorage();
   },
 };
 </script>
