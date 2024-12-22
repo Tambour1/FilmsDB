@@ -8,6 +8,7 @@ export default {
       error: '',
       isLoading: false,
       noResults: false,
+      searches: [],
     };
   },
   methods: {
@@ -29,6 +30,12 @@ export default {
         if (data.Response === 'True') {
           this.currentResults = data.Search;
           this.noResults = this.currentResults.length === 0;
+          this.searches.push({
+            id: Date.now(),
+            recherche: this.film,
+            results: [...this.currentResults],
+            totalResults: data.totalResults,
+          });
         } else {
           this.noResults = true;
         }
