@@ -12,6 +12,7 @@ export default {
       searches: [],
       currentMovie: {},
       details : false,
+      nbResultats: '',
     };
   },
   methods: {
@@ -25,6 +26,7 @@ export default {
       this.currentResults = [];
       this.currentMovie = {};
       this.details = false;
+      this.currentSearch = '';
 
       try {
         const response = await fetch(
@@ -41,8 +43,12 @@ export default {
             results: [...this.currentResults],
             totalResults: data.totalResults,
           });
+          this.nbResultats = `${data.totalResults} résultat${
+            data.totalResults > 1 ? 's' : ''
+          }`;          
         } else {
           this.noResults = true;
+          this.nbResultats = '';
         }
       } catch (err) {
         this.error = 'Une erreur est survenue lors de la recherche.';
@@ -70,6 +76,7 @@ export default {
       this.details = false;
       this.currentResults = search.results;
       this.currentSearch = search.id;
+      this.nbResultats = `${search.totalResults} résultat${search.totalResults > 1 ? 's' : ''}`;
     },
 
     clearHistory() {
@@ -83,6 +90,7 @@ export default {
       this.film = '';
       this.currentMovie = {};
       this.details = false;
+      this.nbResultats = '';
     },
   },
 
@@ -105,7 +113,7 @@ export default {
   <body>
     <input :value="film" @input="onInput" placeholder="Taper le film ici" />
     <button @click="search">Rechercher</button>
-
+    <p>{{ this.nbResultats }}</p>
     <p v-if="isLoading">Chargement en cours...</p>
 
     <p v-if="error" style="color: red;">{{ error }}</p>
