@@ -95,6 +95,7 @@ export default {
       this.currentMovie = {};
       this.details = false;
       this.nbResultats = '';
+      localStorage.removeItem('movieData');
     },
 
     saveToLocalStorage() {
