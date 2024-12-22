@@ -10,6 +10,8 @@ export default {
       isLoading: false,
       noResults: false,
       searches: [],
+      currentMovie: {},
+      details : false,
     };
   },
   methods: {
@@ -21,6 +23,8 @@ export default {
       this.isLoading = true;
       this.error = '';
       this.currentResults = [];
+      this.currentMovie = {};
+      this.details = false;
 
       try {
         const response = await fetch(
@@ -47,7 +51,23 @@ export default {
       }
     },
 
+    async searchMovie(id) {      
+      this.details = false;
+      this.currentResults = [];
+      try {
+        const response = await fetch(
+          `https://www.omdbapi.com/?apikey=${this.apiKey}&i=${id}`
+        );
+        const data = await response.json();
+        this.currentMovie = data;
+        this.details = true;
+      } catch (err) {
+        this.error = 'Une erreur est survenue lors de la recherche.';
+      }
+    },
+
     displayHistory(search) {
+      this.details = false;
       this.currentResults = search.results;
       this.currentSearch = search.id;
     },
@@ -61,7 +81,9 @@ export default {
       this.currentResults = [];
       this.currentSearch = '';
       this.film = '';
-  },
+      this.currentMovie = {};
+      this.details = false;
+    },
   },
 };
 </script>
@@ -79,10 +101,28 @@ export default {
 
     <ul v-if="!isLoading" class="movies">
       <li v-for="result in currentResults" :key="result.imdbID">
-        <img :src="result.Poster" alt="Poster" />
+        <img :src="result.Poster" alt="Poster" @click="searchMovie(result.imdbID)" />
         <p>{{ result.Title }} ({{ result.Year }}) - {{ result.Type }}</p>
       </li>
     </ul>
+
+    <div v-if="details && currentMovie.length !== 0 " class="details">
+      <img :src="currentMovie.Poster" alt="Film Poster" />
+      <h2>{{ currentMovie.Title }} ({{ currentMovie.Year }})</h2>
+      <div>
+        <span>Genre:</span> <span>{{ currentMovie.Genre }}</span>
+      </div>
+      <div>
+        <span>Director:</span> <span>{{ currentMovie.Director }}</span>
+      </div>
+      <div>
+        <span>Actors:</span> <span>{{ currentMovie.Actors }}</span>
+      </div>
+      <div>
+        <span>IMDb Rating:</span> <span>{{ currentMovie.imdbRating }}</span>
+      </div>
+      <p>{{ currentMovie.Plot }}</p>
+    </div>
 
     <div class="historique">
     <h2>Historique de recherche</h2>  
