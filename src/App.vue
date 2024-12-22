@@ -2,8 +2,8 @@
 export default {
   data() {
     return {
-      film: '',
       apiKey: '2b61feeb',
+      film: '',      
       currentResults: [],
       currentSearch: '',
       error: '',
@@ -51,6 +51,17 @@ export default {
       this.currentResults = search.results;
       this.currentSearch = search.id;
     },
+
+    clearHistory() {
+      this.searches = [];
+    },
+
+    clearAll() {
+      this.searches = [];
+      this.currentResults = [];
+      this.currentSearch = '';
+      this.film = '';
+  },
   },
 };
 </script>
@@ -74,7 +85,11 @@ export default {
     </ul>
 
     <div class="historique">
-    <h2>Historique de recherche</h2>   
+    <h2>Historique de recherche</h2>  
+    <div class="buttons">
+      <button @click="clearHistory">Effacer historique</button>
+      <button @click="clearAll">Effacer toutes les données</button>
+    </div>  
     <ul>
       <li 
         v-for="search in searches" 
