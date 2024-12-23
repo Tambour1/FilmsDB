@@ -1,6 +1,6 @@
 <script>
 export default {
-  name: "History",
+  name: "CurrentMovie",
   props: {
     movie: {
       type: Object,
