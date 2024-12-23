@@ -2,17 +2,17 @@
 export default {
   data() {
     return {
-      apiKey: '2b61feeb',
-      film: '',      
-      currentResults: [],
-      currentSearch: '',
-      error: '',
+      apiKey: "2b61feeb",
+      error: "",
       isLoading: false,
       noResults: false,
+      details: false,
+      film: "",
       searches: [],
+      nbResultats: "",
+      currentResults: [],
+      currentSearch: "",
       currentMovie: {},
-      details : false,
-      nbResultats: '',
     };
   },
   methods: {
@@ -20,13 +20,14 @@ export default {
       this.film = event.target.value;
     },
 
-    async search() { 
+    async search() {
       this.isLoading = true;
-      this.error = '';
+      this.error = "";
       this.currentResults = [];
       this.currentMovie = {};
       this.details = false;
-      this.currentSearch = '';
+      this.currentSearch = "";
+      this.noResults = false;
 
       try {
         const response = await fetch(
@@ -34,7 +35,7 @@ export default {
         );
         const data = await response.json();
 
-        if (data.Response === 'True') {
+        if (data.Response === "True") {
           this.currentResults = data.Search;
           this.noResults = this.currentResults.length === 0;
           this.searches.push({
@@ -44,21 +45,21 @@ export default {
             totalResults: data.totalResults,
           });
           this.nbResultats = `${data.totalResults} résultat${
-            data.totalResults > 1 ? 's' : ''
-          }`;  
-          this.saveToLocalStorage();        
+            data.totalResults > 1 ? "s" : ""
+          }`;
+          this.saveToLocalStorage();
         } else {
           this.noResults = true;
-          this.nbResultats = '';
+          this.nbResultats = "";
         }
       } catch (err) {
-        this.error = 'Une erreur est survenue lors de la recherche.';
+        this.error = "Une erreur est survenue lors de la recherche.";
       } finally {
         this.isLoading = false;
       }
     },
 
-    async searchMovie(id) {      
+    async searchMovie(id) {
       this.details = false;
       this.currentResults = [];
       try {
@@ -70,7 +71,7 @@ export default {
         this.details = true;
         this.saveToLocalStorage();
       } catch (err) {
-        this.error = 'Une erreur est survenue lors de la recherche.';
+        this.error = "Une erreur est survenue lors de la recherche.";
       }
     },
 
@@ -78,7 +79,7 @@ export default {
       this.details = false;
       this.currentResults = search.results;
       this.currentSearch = search.id;
-      this.nbResultats = `${search.totalResults} résultat${search.totalResults > 1 ? 's' : ''}`;
+      this.nbResultats = `${search.totalResults} résultat${search.totalResults > 1 ? "s" : ""}`;
       this.saveToLocalStorage();
     },
 
@@ -88,52 +89,59 @@ export default {
     },
 
     clearAll() {
-      this.searches = [];
+      this.film = "";
       this.currentResults = [];
-      this.currentSearch = '';
-      this.film = '';
+      this.isLoading = false;
+      this.error = "";
+      this.noResults = false;
+      this.searches = [];
+      this.currentSearch = "";
       this.currentMovie = {};
       this.details = false;
-      this.nbResultats = '';
-      localStorage.removeItem('movieData');
+      this.nbResultats = "";
+      localStorage.removeItem("movieData");
     },
 
     saveToLocalStorage() {
       const data = {
-      searches: this.searches,
-      currentResults: this.currentResults,
-      currentMovie: this.currentMovie,
-      details: this.details,
-      currentSearch: this.currentSearch,
-      nbResultats: this.nbResultats,
+        searches: this.searches,
+        currentResults: this.currentResults,
+        currentMovie: this.currentMovie,
+        details: this.details,
+        currentSearch: this.currentSearch,
+        nbResultats: this.nbResultats,
       };
-      localStorage.setItem('movieData', JSON.stringify(data));
+      localStorage.setItem("movieData", JSON.stringify(data));
     },
 
     loadFromLocalStorage() {
-      const savedData = localStorage.getItem('movieData');
+      const savedData = localStorage.getItem("movieData");
       if (savedData) {
         const parsedData = JSON.parse(savedData);
         this.searches = parsedData.searches || [];
         this.currentResults = parsedData.currentResults || [];
         this.currentMovie = parsedData.currentMovie || {};
         this.details = parsedData.details || false;
-        this.currentSearch = parsedData.currentSearch || '';
-        this.nbResultats = parsedData.nbResultats || '';
+        this.currentSearch = parsedData.currentSearch || "";
+        this.nbResultats = parsedData.nbResultats || "";
       }
     },
   },
 
-  computed : {
-    minutesToHour() {      
+  computed: {
+    minutesToHour() {
       let runtime = this.currentMovie.Runtime;
       runtime = parseInt(runtime);
       let hours = Math.floor(runtime / 60);
       let minutes = runtime % 60;
-      if(hours < 1) {
+      if (hours < 1) {
         return `${minutes}min`;
       }
       return `${hours}h${minutes}`;
+    },
+
+    isEmpty() {
+      return this.searches.length === 0 || this.noResults === true;
     },
   },
 
@@ -145,64 +153,241 @@ export default {
 
 <template>
   <body>
-    <input :value="film" @input="onInput" placeholder="Taper le film ici" />
-    <button @click="search">Rechercher</button>
-    <p>{{ this.nbResultats }}</p>
-    <p v-if="isLoading">Chargement en cours...</p>
+    <div class="grille" :style="{ height: isEmpty ? '100vh' : 'auto' }">
+      <div class="main">
+        <div class="searchbar">
+          <input
+            :value="film"
+            @input="onInput"
+            placeholder="Taper le film ici"
+          />
+          <button @click="search">Rechercher</button>
+        </div>
+        <p>{{ this.nbResultats }}</p>
+        <p v-if="isLoading">Chargement en cours...</p>
 
-    <p v-if="error" style="color: red;">{{ error }}</p>
+        <p v-if="error" style="color: red">{{ error }}</p>
 
-    <p v-if="!isLoading && noResults">Aucun résultat trouvé.</p>
+        <p v-if="!isLoading && noResults">Aucun résultat trouvé.</p>
 
-    <ul v-if="!isLoading" class="movies">
-      <li v-for="result in currentResults" :key="result.imdbID">
-        <img :src="result.Poster" alt="Poster" @click="searchMovie(result.imdbID)" />
-        <p>{{ result.Title }} ({{ result.Year }}) - {{ result.Type }}</p>
-      </li>
-    </ul>
+        <ul v-if="!isLoading" class="movies">
+          <li v-for="result in currentResults" :key="result.imdbID">
+            <img
+              :src="result.Poster"
+              alt="Poster"
+              @click="searchMovie(result.imdbID)"
+            />
+            <p>{{ result.Title }} ({{ result.Year }}) - {{ result.Type }}</p>
+          </li>
+        </ul>
 
-    <div v-if="details && currentMovie.length !== 0 " class="details">
-      <img :src="currentMovie.Poster" alt="Film Poster" />
-      <h2>{{ currentMovie.Title }} ({{ currentMovie.Year }})</h2>
-      <p>{{ minutesToHour }}</p>
-      <div>
-        <span>Genre:</span> <span>{{ currentMovie.Genre }}</span>
+        <div v-if="details && currentMovie.length !== 0" class="details">
+          <img :src="currentMovie.Poster" alt="Film Poster" />
+          <h2>{{ currentMovie.Title }} ({{ currentMovie.Year }})</h2>
+          <p>{{ minutesToHour }}</p>
+          <div>
+            <span>Genre:</span> <span>{{ currentMovie.Genre }}</span>
+          </div>
+          <div>
+            <span>Director:</span> <span>{{ currentMovie.Director }}</span>
+          </div>
+          <div>
+            <span>Actors:</span> <span>{{ currentMovie.Actors }}</span>
+          </div>
+          <div>
+            <span>IMDb Rating:</span> <span>{{ currentMovie.imdbRating }}</span>
+          </div>
+          <p>{{ currentMovie.Plot }}</p>
+        </div>
       </div>
-      <div>
-        <span>Director:</span> <span>{{ currentMovie.Director }}</span>
+
+      <div class="historique">
+        <h2>Historique de recherche</h2>
+        <div class="buttons">
+          <button @click="clearHistory">Effacer historique</button>
+          <button @click="clearAll">Effacer toutes les données</button>
+        </div>
+        <ul>
+          <li
+            v-for="search in searches"
+            :key="search.id"
+            @click="displayHistory(search)"
+            :class="{ selected: currentSearch === search.id }"
+          >
+            {{ search.recherche }}
+          </li>
+        </ul>
       </div>
-      <div>
-        <span>Actors:</span> <span>{{ currentMovie.Actors }}</span>
-      </div>
-      <div>
-        <span>IMDb Rating:</span> <span>{{ currentMovie.imdbRating }}</span>
-      </div>
-      <p>{{ currentMovie.Plot }}</p>
     </div>
-
-    <div class="historique">
-    <h2>Historique de recherche</h2>  
-    <div class="buttons">
-      <button @click="clearHistory">Effacer historique</button>
-      <button @click="clearAll">Effacer toutes les données</button>
-    </div>  
-    <ul>
-      <li 
-        v-for="search in searches" 
-        :key="search.id"
-        @click="displayHistory(search)"
-        :class="{ selected: currentSearch === search.id}">
-        {{ search.recherche }}
-      </li>
-    </ul>
-  </div>
-  </body>  
+  </body>
 </template>
 
 <style>
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.grille {
+  display: flex;
+  height: auto;
+}
+
+.searchbar {
+  display: flex;
+}
+
+.searchbar input {
+  width: 80%;
+  padding: 1em;
+  border: 1px solid #b59f78;
+  border-radius: 0.4em;
+  background-color: #ffffff;
+}
+
+.searchbar button {
+  width: 20%;
+  padding: 1em;
+  border: 1px solid #2a3663;
+  border-radius: 0.4em;
+  margin-left: 1em;
+  background-color: #2a3663;
+  color: white;
+  cursor: pointer;
+}
+
+.main {
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  background-color: #faf6e3;
+}
+
+.movies {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.movies li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0;
+  padding: 1.5em 0 1.5em 0;
+  box-sizing: border-box;
+  background-color: #e7e7e7;
+  border: 1px solid #bababb;
+  border-radius: 1em;
+  cursor: pointer;
+}
+
+.movies p {
+  margin: 0;
+  padding: 0;
+}
+
+.historique {
+  width: 20%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-left: 1px solid #2a3663;
+  background-color: #d8dbbd;
+}
+
+.historique ul {
+  padding: 0;
+  margin-top: 1em;
+}
+
+.historique li {
+  cursor: pointer;
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  font-size: 1.7em;
+}
+
+.historique li:hover {
+  font-size: 1.8em;
+}
 
 .selected {
   color: blue;
   font-weight: bold;
+}
+
+.historique h2 {
+  color: #2a3663;
+}
+
+.buttons {
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+}
+
+.buttons button {
+  padding: 1em;
+  border: 1px solid #2a3663;
+  border-radius: 0.4em;
+  background-color: #2a3663;
+  color: white;
+  cursor: pointer;
+}
+
+.details {
+  background-color: #fbfbfb;
+  border-radius: 1em;
+  padding: 20px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.details h2 {
+  color: #2a3663;
+  font-size: 2.5em;
+  margin-bottom: 10px;
+}
+
+.details img {
+  width: 300px;
+  height: 450px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.details p {
+  font-size: 1.1em;
+  color: #555;
+  line-height: 1.5;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.details .runtime {
+  font-weight: bold;
+  font-size: 1.2em;
+  margin-bottom: 15px;
+}
+
+.details div {
+  display: flex;
+  justify-content: space-between;
+  width: 80%;
+  margin-bottom: 10px;
+}
+
+.details span {
+  font-weight: 500;
 }
 </style>
