@@ -163,7 +163,7 @@ export default {
           />
           <button @click="search">Rechercher</button>
         </div>
-        <p>{{ this.nbResultats }}</p>
+        <p>{{ nbResultats }}</p>
         <p v-if="isLoading">Chargement en cours...</p>
 
         <p v-if="error" style="color: red">{{ error }}</p>
