@@ -1,5 +1,6 @@
 <script>
 import History from "./components/History.vue";
+import CurrentMovie from "./components/CurrentMovie.vue";
 export default {
   data() {
     return {
@@ -14,11 +15,11 @@ export default {
       currentResults: [],
       currentSearch: "",
       currentMovie: {},
-      courseTitle: 'Vue.js pour débutants',
     };
   },
   components: {
     History,
+    CurrentMovie,
   },
   methods: {
     onInput(event) {
@@ -134,17 +135,6 @@ export default {
   },
 
   computed: {
-    minutesToHour() {
-      let runtime = this.currentMovie.Runtime;
-      runtime = parseInt(runtime);
-      let hours = Math.floor(runtime / 60);
-      let minutes = runtime % 60;
-      if (hours < 1) {
-        return `${minutes}min`;
-      }
-      return `${hours}h${minutes}`;
-    },
-
     isEmpty() {
       return this.searches.length === 0 || this.noResults === true;
     },
@@ -179,24 +169,11 @@ export default {
           </li>
         </ul>
 
-        <div v-if="details && currentMovie.length !== 0" class="details">
-          <img :src="currentMovie.Poster" alt="Film Poster" />
-          <h2>{{ currentMovie.Title }} ({{ currentMovie.Year }})</h2>
-          <p>{{ minutesToHour }}</p>
-          <div>
-            <span>Genre:</span> <span>{{ currentMovie.Genre }}</span>
-          </div>
-          <div>
-            <span>Director:</span> <span>{{ currentMovie.Director }}</span>
-          </div>
-          <div>
-            <span>Actors:</span> <span>{{ currentMovie.Actors }}</span>
-          </div>
-          <div>
-            <span>IMDb Rating:</span> <span>{{ currentMovie.imdbRating }}</span>
-          </div>
-          <p>{{ currentMovie.Plot }}</p>
-        </div>
+        <CurrentMovie 
+          :movie="currentMovie" 
+          :is-selected="details" 
+        />
+
       </div>
 
       <History 
@@ -278,55 +255,5 @@ body {
 .movies p {
   margin: 0;
   padding: 0;
-}
-
-.details {
-  background-color: #fbfbfb;
-  border-radius: 1em;
-  padding: 20px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  margin-top: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.details h2 {
-  color: #2a3663;
-  font-size: 2.5em;
-  margin-bottom: 10px;
-}
-
-.details img {
-  width: 300px;
-  height: 450px;
-  object-fit: cover;
-  border-radius: 8px;
-  margin-bottom: 20px;
-}
-
-.details p {
-  font-size: 1.1em;
-  color: #555;
-  line-height: 1.5;
-  text-align: center;
-  margin-bottom: 10px;
-}
-
-.details .runtime {
-  font-weight: bold;
-  font-size: 1.2em;
-  margin-bottom: 15px;
-}
-
-.details div {
-  display: flex;
-  justify-content: space-between;
-  width: 80%;
-  margin-bottom: 10px;
-}
-
-.details span {
-  font-weight: 500;
 }
 </style>
