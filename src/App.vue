@@ -1,4 +1,5 @@
 <script>
+import History from "./components/History.vue";
 export default {
   data() {
     return {
@@ -13,7 +14,11 @@ export default {
       currentResults: [],
       currentSearch: "",
       currentMovie: {},
+      courseTitle: 'Vue.js pour débutants',
     };
+  },
+  components: {
+    History,
   },
   methods: {
     onInput(event) {
@@ -152,15 +157,12 @@ export default {
 </script>
 
 <template>
+
   <body>
     <div class="grille" :style="{ height: isEmpty ? '100vh' : 'auto' }">
       <div class="main">
         <div class="searchbar">
-          <input
-            :value="film"
-            @input="onInput"
-            placeholder="Taper le film ici"
-          />
+          <input :value="film" @input="onInput" placeholder="Taper le film ici" />
           <button @click="search">Rechercher</button>
         </div>
         <p>{{ nbResultats }}</p>
@@ -172,11 +174,7 @@ export default {
 
         <ul v-if="!isLoading" class="movies">
           <li v-for="result in currentResults" :key="result.imdbID">
-            <img
-              :src="result.Poster"
-              alt="Poster"
-              @click="searchMovie(result.imdbID)"
-            />
+            <img :src="result.Poster" alt="Poster" @click="searchMovie(result.imdbID)" />
             <p>{{ result.Title }} ({{ result.Year }}) - {{ result.Type }}</p>
           </li>
         </ul>
@@ -201,23 +199,14 @@ export default {
         </div>
       </div>
 
-      <div class="historique">
-        <h2>Historique de recherche</h2>
-        <div class="buttons">
-          <button @click="clearHistory">Effacer historique</button>
-          <button @click="clearAll">Effacer toutes les données</button>
-        </div>
-        <ul>
-          <li
-            v-for="search in searches"
-            :key="search.id"
-            @click="displayHistory(search)"
-            :class="{ selected: currentSearch === search.id }"
-          >
-            {{ search.recherche }}
-          </li>
-        </ul>
-      </div>
+      <History 
+        :searches="searches" 
+        :currentSearch="currentSearch" 
+        @show-search-results="displayHistory"
+        @clear-history="clearHistory" 
+        @clear-all="clearAll" 
+      />
+
     </div>
   </body>
 </template>
@@ -289,56 +278,6 @@ body {
 .movies p {
   margin: 0;
   padding: 0;
-}
-
-.historique {
-  width: 20%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  border-left: 1px solid #2a3663;
-  background-color: #d8dbbd;
-}
-
-.historique ul {
-  padding: 0;
-  margin-top: 1em;
-}
-
-.historique li {
-  cursor: pointer;
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
-  font-size: 1.7em;
-}
-
-.historique li:hover {
-  font-size: 1.8em;
-}
-
-.selected {
-  color: blue;
-  font-weight: bold;
-}
-
-.historique h2 {
-  color: #2a3663;
-}
-
-.buttons {
-  width: 100%;
-  display: flex;
-  justify-content: space-around;
-}
-
-.buttons button {
-  padding: 1em;
-  border: 1px solid #2a3663;
-  border-radius: 0.4em;
-  background-color: #2a3663;
-  color: white;
-  cursor: pointer;
 }
 
 .details {
