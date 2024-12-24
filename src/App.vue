@@ -1,6 +1,7 @@
 <script>
 import History from "./components/History.vue";
 import CurrentMovie from "./components/CurrentMovie.vue";
+import SearchBar from "./components/SearchBar.vue";
 export default {
   data() {
     return {
@@ -17,15 +18,14 @@ export default {
       currentMovie: {},
     };
   },
+
   components: {
     History,
     CurrentMovie,
+    SearchBar,
   },
-  methods: {
-    onInput(event) {
-      this.film = event.target.value;
-    },
 
+  methods: {
     async search() {
       this.isLoading = true;
       this.error = "";
@@ -151,10 +151,11 @@ export default {
   <body>
     <div class="grille" :style="{ height: isEmpty ? '100vh' : 'auto' }">
       <div class="main">
-        <div class="searchbar">
-          <input :value="film" @input="onInput" placeholder="Taper le film ici" />
-          <button @click="search">Rechercher</button>
-        </div>
+        <SearchBar 
+          :title="'FilmDB App'"
+          v-model:film="film"
+          @search="search"
+        />
         <p>{{ nbResultats }}</p>
         <p v-if="isLoading">Chargement en cours...</p>
 
@@ -173,7 +174,6 @@ export default {
           :movie="currentMovie" 
           :is-selected="details" 
         />
-
       </div>
 
       <History 
@@ -197,29 +197,6 @@ body {
 .grille {
   display: flex;
   height: auto;
-}
-
-.searchbar {
-  display: flex;
-}
-
-.searchbar input {
-  width: 80%;
-  padding: 1em;
-  border: 1px solid #b59f78;
-  border-radius: 0.4em;
-  background-color: #ffffff;
-}
-
-.searchbar button {
-  width: 20%;
-  padding: 1em;
-  border: 1px solid #2a3663;
-  border-radius: 0.4em;
-  margin-left: 1em;
-  background-color: #2a3663;
-  color: white;
-  cursor: pointer;
 }
 
 .main {
