@@ -2,6 +2,7 @@
 import History from "./components/History.vue";
 import CurrentMovie from "./components/CurrentMovie.vue";
 import SearchBar from "./components/SearchBar.vue";
+import ResultsList from "./components/ResultsList.vue";
 export default {
   data() {
     return {
@@ -23,6 +24,7 @@ export default {
     History,
     CurrentMovie,
     SearchBar,
+    ResultsList,
   },
 
   methods: {
@@ -156,19 +158,25 @@ export default {
           v-model:film="film"
           @search="search"
         />
-        <p>{{ nbResultats }}</p>
         <p v-if="isLoading">Chargement en cours...</p>
-
         <p v-if="error" style="color: red">{{ error }}</p>
 
-        <p v-if="!isLoading && noResults">Aucun résultat trouvé.</p>
+        <ResultsList
+          v-else="!noResults"
+          :items="currentResults" 
+          :nbItems="nbResultats">          
+          
+          <template #total="{ total }">
+            <p v-if="!isLoading && !noResults">Films correspondants : {{ total }}</p>
+            <p v-else-if="noResults && !isLoading">Aucun résultat trouvé</p>
+          </template>        
 
-        <ul v-if="!isLoading" class="movies">
-          <li v-for="result in currentResults" :key="result.imdbID">
-            <img :src="result.Poster" alt="Poster" @click="searchMovie(result.imdbID)" />
-            <p>{{ result.Title }} ({{ result.Year }}) - {{ result.Type }}</p>
-          </li>
-        </ul>
+          <template #default="{ item }">
+            <img :src="item.Poster" alt="Poster" @click="searchMovie(item.imdbID)" />
+            <p>{{ item.Title }} ({{ item.Year }}) - {{ item.Type }}</p>
+          </template>
+          
+        </ResultsList>
 
         <CurrentMovie 
           :movie="currentMovie" 
@@ -205,32 +213,5 @@ body {
   flex-direction: column;
   padding: 20px;
   background-color: #faf6e3;
-}
-
-.movies {
-  display: grid;
-  margin: 0;
-  padding: 0;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-}
-
-.movies li {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  margin: 0;
-  padding: 1.5em 0 1.5em 0;
-  box-sizing: border-box;
-  background-color: #e7e7e7;
-  border: 1px solid #bababb;
-  border-radius: 1em;
-  cursor: pointer;
-}
-
-.movies p {
-  margin: 0;
-  padding: 0;
 }
 </style>
