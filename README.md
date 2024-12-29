@@ -1,4 +1,6 @@
 # FilmsDB App
+Cette application a été réalisée par **Victor GEORGES**, étudiant de BUT 3 Informatique à l'IUT Nancy-Charlemagne, dans le cadre d'un TD de développement client avancé.
+
 # Tables des matières
 - [Description](#description)
 - [Sujets](#sujets)
@@ -12,8 +14,6 @@
 - Consultation des détails des films sélectionnés.
 - Historique des recherches.
 - Stockage des données local.
-
-Cette application a été réalisée dans le cadre d'un TD d'un cours de développement client avancé.
 
 # Sujets
 Sujets réalisés par Anthony RIMET : IUT Nancy-Charlemagne 2024
