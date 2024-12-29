@@ -48,6 +48,10 @@ export default {
   width: 20%;
   border-left: 1px solid #2a3663;
   background-color: #d8dbbd;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
 }
 
 .historique ul {
