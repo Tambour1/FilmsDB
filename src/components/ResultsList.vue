@@ -11,6 +11,10 @@ export default {
       required: true,
       default: 0,
     },
+    isDetails: {
+      type: Boolean,
+      required: false,
+    },
   },
 };
 </script>
@@ -23,7 +27,7 @@ export default {
     </div>
   </div>
 
-  <div class="pagination" v-if="items.length < nbItems"
+  <div class="pagination" v-if="items.length < nbItems && !isDetails"
   @click="$emit('list:more')">Afficher plus de résultats
   </div>
 

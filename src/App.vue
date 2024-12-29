@@ -179,7 +179,7 @@ export default {
 <template>
 
   <body>
-    <div class="grille" :style="{ height: isEmpty ? '100vh' : 'auto' }">
+    <div class="grille" :style="{ height: isEmpty ? '120vh' : 'auto' }">
       <div class="main">
         <SearchBar 
           :title="'FilmDB App'"
@@ -193,10 +193,11 @@ export default {
           v-else="!noResults"
           :items="currentResults" 
           :nbItems="nbResultats"
+          :isDetails="details"
           @list:more="fetchMoreMovies">          
           
           <template #total="{ total }">
-            <p v-if="!isLoading && !noResults">Films correspondants : {{ total }} résultats</p>
+            <p v-if="!isLoading && !noResults && !details">Films correspondants : {{ total }} résultats</p>
             <p v-else-if="noResults && !isLoading">Aucun résultat trouvé</p>
           </template>        
 
