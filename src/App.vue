@@ -3,6 +3,8 @@ import History from "./components/History.vue";
 import CurrentMovie from "./components/CurrentMovie.vue";
 import SearchBar from "./components/SearchBar.vue";
 import ResultsList from "./components/ResultsList.vue";
+import defaultPoster from "./assets/images/default-poster.jpg";
+
 export default {
   data() {
     return {
@@ -18,6 +20,7 @@ export default {
       currentSearch: "",
       currentMovie: {},
       currentPage: 1,
+      defaultPoster,
     };
   },
 
@@ -201,7 +204,7 @@ export default {
           </template>        
 
           <template #default="{ item }">
-            <img :src="item.Poster" alt="Poster" @click="searchMovie(item.imdbID)" />
+            <img :src="item.Poster !== 'N/A' ? item.Poster : defaultPoster" alt="Poster" @click="searchMovie(item.imdbID)" />
             <p>{{ item.Title }} ({{ item.Year }}) - {{ item.Type }}</p>
           </template>
           
@@ -244,5 +247,9 @@ body {
   padding: 20px;
   background-color: #faf6e3;
   flex-grow: 1;
+}
+
+img {
+  width: 60%;
 }
 </style>
