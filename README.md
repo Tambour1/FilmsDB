@@ -17,8 +17,8 @@ Cette application a été réalisée dans le cadre d'un TD d'un cours de dévelo
 
 # Sujets
 Sujets réalisés par Anthony RIMET : IUT Nancy-Charlemagne 2024
-- [Partie 1](./docs/partie1-FilmDB.pdf)
-- [Partie 2](./docs/partie2-FilmDB.pdf)
+- [Partie 1](./docs/partie1-FilmsDB.pdf)
+- [Partie 2](./docs/partie2-FilmsDB.pdf)
 
 # Technologies
 - **Frontend :** HTML, CSS, JavaScript avec le framework VueJs.
