@@ -115,7 +115,6 @@ export default {
     },
 
     clearHistory() {
-      this.currentPage = 1;
       this.searches = [];
       this.saveToLocalStorage();
     },
