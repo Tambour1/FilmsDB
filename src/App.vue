@@ -13,10 +13,11 @@ export default {
       details: false,
       film: "",
       searches: [],
-      nbResultats: "",
+      nbResultats: 0,
       currentResults: [],
       currentSearch: "",
       currentMovie: {},
+      currentPage: 1,
     };
   },
 
@@ -36,6 +37,7 @@ export default {
       this.details = false;
       this.currentSearch = "";
       this.noResults = false;
+      this.currentPage = 1;
 
       try {
         const response = await fetch(
@@ -50,18 +52,37 @@ export default {
             id: Date.now(),
             recherche: this.film,
             results: [...this.currentResults],
-            totalResults: data.totalResults,
+            totalResults: Number(data.totalResults),
           });
-          this.nbResultats = `${data.totalResults} résultat${
-            data.totalResults > 1 ? "s" : ""
-          }`;
+          this.nbResultats = Number(data.totalResults);
           this.saveToLocalStorage();
         } else {
           this.noResults = true;
-          this.nbResultats = "";
+          this.nbResultats = 0;
         }
       } catch (err) {
         this.error = "Une erreur est survenue lors de la recherche.";
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    async fetchMoreMovies() {
+      this.isLoading = true;
+      try {
+        const nextPage = this.currentPage + 1;
+        const response = await fetch(
+          `https://www.omdbapi.com/?apikey=${this.apiKey}&s=${this.film}&page=${nextPage}`
+        );
+        const data = await response.json();
+
+        if (data.Response === "True") {
+          this.currentResults = [...this.currentResults, ...data.Search];
+          this.currentPage = nextPage;
+          this.saveToLocalStorage();
+        }
+      } catch (err) {
+        this.error = "Une erreur est survenue lors du chargement des résultats suivants.";
       } finally {
         this.isLoading = false;
       }
@@ -84,14 +105,17 @@ export default {
     },
 
     displayHistory(search) {
+      this.currentPage = 1;
+      this.film = search.recherche;
       this.details = false;
       this.currentResults = search.results;
       this.currentSearch = search.id;
-      this.nbResultats = `${search.totalResults} résultat${search.totalResults > 1 ? "s" : ""}`;
+      this.nbResultats = search.totalResults;
       this.saveToLocalStorage();
     },
 
     clearHistory() {
+      this.currentPage = 1;
       this.searches = [];
       this.saveToLocalStorage();
     },
@@ -106,18 +130,21 @@ export default {
       this.currentSearch = "";
       this.currentMovie = {};
       this.details = false;
-      this.nbResultats = "";
+      this.nbResultats = 0;
+      this.currentPage = 1;
       localStorage.removeItem("movieData");
     },
 
     saveToLocalStorage() {
       const data = {
+        film: this.film,
         searches: this.searches,
         currentResults: this.currentResults,
         currentMovie: this.currentMovie,
         details: this.details,
         currentSearch: this.currentSearch,
         nbResultats: this.nbResultats,
+        currentPage: this.currentPage,
       };
       localStorage.setItem("movieData", JSON.stringify(data));
     },
@@ -126,19 +153,20 @@ export default {
       const savedData = localStorage.getItem("movieData");
       if (savedData) {
         const parsedData = JSON.parse(savedData);
+        this.film = parsedData.film || "";
         this.searches = parsedData.searches || [];
         this.currentResults = parsedData.currentResults || [];
         this.currentMovie = parsedData.currentMovie || {};
         this.details = parsedData.details || false;
         this.currentSearch = parsedData.currentSearch || "";
-        this.nbResultats = parsedData.nbResultats || "";
+        this.nbResultats = parsedData.nbResultats || 0;
+        this.currentPage = parsedData.currentPage || 1;
       }
     },
   },
-
   computed: {
     isEmpty() {
-      return this.searches.length === 0 || this.noResults === true;
+      return this.currentResults.length === 0 && !this.isLoading && !this.error;
     },
   },
 
@@ -164,10 +192,11 @@ export default {
         <ResultsList
           v-else="!noResults"
           :items="currentResults" 
-          :nbItems="nbResultats">          
+          :nbItems="nbResultats"
+          @list:more="fetchMoreMovies">          
           
           <template #total="{ total }">
-            <p v-if="!isLoading && !noResults">Films correspondants : {{ total }}</p>
+            <p v-if="!isLoading && !noResults">Films correspondants : {{ total }} résultats</p>
             <p v-else-if="noResults && !isLoading">Aucun résultat trouvé</p>
           </template>        
 
@@ -205,6 +234,7 @@ body {
 .grille {
   display: flex;
   height: auto;
+  min-height: 100vh;
 }
 
 .main {
@@ -213,5 +243,6 @@ body {
   flex-direction: column;
   padding: 20px;
   background-color: #faf6e3;
+  flex-grow: 1;
 }
 </style>

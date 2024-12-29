@@ -9,6 +9,7 @@ export default {
     nbItems: {
       type: Number,
       required: true,
+      default: 0,
     },
   },
 };
@@ -21,6 +22,11 @@ export default {
       <slot :item="item"></slot>
     </div>
   </div>
+
+  <div class="pagination" v-if="items.length < nbItems"
+  @click="$emit('list:more')">Afficher plus de résultats
+  </div>
+
 </template>
 
 <style scoped>
@@ -42,6 +48,18 @@ export default {
   box-sizing: border-box;
   background-color: #e7e7e7;
   border: 1px solid #bababb;
+  border-radius: 1em;
+  cursor: pointer;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 1em 0;
+  padding: 1em 0;
+  background-color: #2a3663;
+  color : white;
   border-radius: 1em;
   cursor: pointer;
 }
